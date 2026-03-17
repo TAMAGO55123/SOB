@@ -6,7 +6,6 @@ from discord.app_commands import default_permissions
 from func.dc import Bot
 from func.log import get_log, stream_handler
 from asyncio import create_task, run
-from web import web
 load_dotenv()
 
 async def main(bot: Bot):
@@ -14,7 +13,6 @@ async def main(bot: Bot):
     @bot.event
     async def on_ready():
         log.info(f"{bot.user.name}としてログインしました")
-        create_task(web())
     
     @bot.event
     async def setup_hook():
