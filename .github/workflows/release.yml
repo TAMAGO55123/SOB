@@ -1,5 +1,8 @@
 name: Auto Release ZIP
 
+permissions:
+  contents: write
+
 on:
   push:
     branches:
@@ -41,5 +44,7 @@ jobs:
           files: |
             sob.zip
             start.sh
+            notupdate.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
