@@ -15,12 +15,12 @@ print("Downloading notupdate list...")
 urllib.request.urlretrieve(NOTUPDATE_URL, "notupdate.txt")
 
 print("Reading exclude list...")
-exclude = set()
+exclude = []
 with open("notupdate.txt", "r", encoding="utf-8") as f:
     for line in f:
         line = line.strip()
         if line and not line.startswith("#"):
-            exclude.add(line)
+            exclude.append(line.rstrip("/"))
 
 print("Extracting ZIP to temp folder...")
 if os.path.exists(TEMP_DIR):
@@ -41,18 +41,18 @@ for root, dirs, files in os.walk(root_path):
     if rel == ".":
         rel = ""
 
-    # 除外フォルダ
-    if rel in exclude:
+    # フォルダ除外（前方一致）
+    if any(rel.startswith(ex) for ex in exclude):
         continue
 
-    # フォルダ作成
     target_dir = os.path.join(".", rel)
     os.makedirs(target_dir, exist_ok=True)
 
-    # ファイルコピー
     for file in files:
         rel_file = os.path.join(rel, file)
-        if rel_file in exclude:
+
+        # ファイル除外（前方一致）
+        if any(rel_file.startswith(ex) for ex in exclude):
             continue
 
         src = os.path.join(root, file)
