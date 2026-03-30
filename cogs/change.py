@@ -1,3 +1,5 @@
+from ast import Bytes
+from curses import noecho
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -38,59 +40,53 @@ class ChangeCog(commands.Cog):
     @app_commands.command(name="change", description="BOTのアイコンを名前などを変更します")
     @app_commands.describe(
         name="Botの名前を指定します。指定しない場合、サーバーの名前が指定されます。",
-        banner_url="BotのバナーのURLを入力します。指定しない場合、ブーストが有効化されている場合はサーバーバナー、有効化されていない場合は何も指定されません。",
-        avatar_url="BotのアイコンURLを入力します。指定しない場合、サーバーアイコン、アイコンがない場合は何も指定されません。",
+        # banner_url="BotのバナーのURLを入力します。指定しない場合、ブーストが有効化されている場合はサーバーバナー、有効化されていない場合は何も指定されません。",
+        avatar="BotのアイコンURLを入力します。指定しない場合、サーバーアイコン、アイコンがない場合は何も指定されません。",
         bio="ユーザーのプロフィールに表示される文字列を指定します。指定しない場合、何も指定されません。"
     )
-    @app_commands.default_permissions(administrator=True)
+    @app_commands.default_permissions(manage_guild=True)
     @app_commands.guild_only()
-    async def change(self, interaction:discord.Interaction, name:str = None, banner_url:str = None, avatar_url:str = None, bio:str = None):
+    async def change(self, interaction:discord.Interaction, name:str = None, banner:discord.Attachment = None, avatar:discord.Attachment = None, bio:str = None):
         await interaction.response.defer()
         try:
+            banner_bytes: BytesIO = None
+            # avatar_bytes: BytesIO = None
             # https://docs.discord.com/developers/resources/guild#modify-current-member
-            if banner_url or avatar_url:
-                async with aiohttp.ClientSession() as session:
-                    if banner_url:
-                        async with session.get(banner_url) as resp:
-                            if resp.status == 200:
-                                banner_bytes = BytesIO()
-                                async for chunk in resp.content.iter_chunked(10):
-                                    banner_bytes.write(chunk)
-                    if avatar_url:
-                        async with session.get(avatar_url) as resp:
-                            if resp.status == 200:
-                                avatar_bytes = BytesIO()
-                                async for chunk in resp.content.iter_chunked(10):
-                                    avatar_bytes.write(chunk)
-            if banner_url == None:
-                if interaction.guild.banner:
-                    banner_bytes = BytesIO(await interaction.guild.banner.read())
-                else:
-                    banner_bytes = None
-            if avatar_url == None:
+            # if banner == None:
+            #     if interaction.guild.banner:
+            #         banner_bytes = BytesIO(await interaction.guild.banner.read())
+            #     else:
+            #         banner_bytes = None
+            # else:
+            #     banner_bytes = BytesIO(await banner.read())
+            if avatar == None:
                 if interaction.guild.icon:
                     avatar_bytes = BytesIO(await interaction.guild.icon.read())
                 else:
                     avatar_bytes = None
-            
+            else:
+                avatar_bytes = BytesIO(await avatar.read())
             
             params = {
                 "nick": name if name else interaction.guild.name
             }
-            if banner_bytes:
-                params["banner"] = bytesio_to_base64(banner_bytes)
+            # if banner_bytes:
+            #     params["banner"] = bytesio_to_base64(banner_bytes)
             if avatar_bytes:
                 params["avatar"] = bytesio_to_base64(avatar_bytes)
             if bio:
                 params["bio"] = bio
             res = await interaction.client.http.request(Route("PATCH", "/guilds/{guild_id}/members/@me", guild_id=interaction.guild.id), json=params)
+            print(json.dumps(res, indent=4,ensure_ascii=False))
+            # {"、バナー" if banner_bytes else ""}
+            # {f"\nbanner : https://cdn.discordapp.com/guilds/{interaction.guild.id}/users/{self.bot.user.id}/banners/{res["banner"]}" if banner_bytes else ""}
             await interaction.followup.send(
                 embed=discord.Embed(
                     title="データを更新",
                     description=f"""\
-Botの名前{"、アイコン" if avatar_bytes else ""}{"、バナー" if banner_bytes else ""}{"、プロフィール" if bio else ""}を変更しました。
+Botの名前{"、アイコン" if avatar_bytes else ""}{"、プロフィール" if bio else ""}を変更しました。
 
-Name : `{res["nick"]}`{f"\navatar : https://cdn.discordapp.com/guilds/{interaction.guild.id}/users/{self.bot.user.id}/avatars/{res["avatar"]}" if avatar_bytes else ""}{f"\nbanner : https://cdn.discordapp.com/guilds/{interaction.guild.id}/users/{self.bot.user.id}/banners/{res["banner"]}" if banner_bytes else ""}{f"\nBio : ```\n{res['bio']}\n```" if res['bio'] else ""}""",
+Name : `{res["nick"]}`{f"\navatar : https://cdn.discordapp.com/guilds/{interaction.guild.id}/users/{self.bot.user.id}/avatars/{res["avatar"]}" if avatar_bytes else ""}{f"\nBio : ```\n{res['bio']}\n```" if res['bio'] else ""}""",
                     colour=discord.Colour.green()
                 )
             )
@@ -101,6 +97,19 @@ Name : `{res["nick"]}`{f"\navatar : https://cdn.discordapp.com/guilds/{interacti
                     description=f"""\
                     Status Code: `{e.status}`
                     Message: `{e.text}`
+                    """,
+                    colour=discord.Colour.red()
+                )
+            )
+        except Exception as e:
+            await interaction.followup.send(
+                embed=discord.Embed(
+                    title="プログラムエラー",
+                    description=f"""\
+                    エラーが出ました
+                    ```
+                    {e}
+                    ```
                     """,
                     colour=discord.Colour.red()
                 )

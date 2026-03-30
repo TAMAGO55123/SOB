@@ -1,4 +1,5 @@
 from os import getenv, listdir
+from os.path import isdir, join, dirname
 from dotenv import load_dotenv
 import discord
 from discord.ext import commands
@@ -6,6 +7,7 @@ from discord.app_commands import default_permissions
 from func.dc import Bot
 from func.log import get_log, stream_handler
 from asyncio import create_task, run
+from tags_collection.func.tools import tc_ob
 load_dotenv()
 
 async def main(bot: Bot):
@@ -17,11 +19,24 @@ async def main(bot: Bot):
     @bot.event
     async def setup_hook():
         try:
+            log.info("通常Cog読み込み")
             for cog in listdir("cogs"):
                 if cog.endswith(".py"):
                     await bot.load_extension(f"cogs.{cog[:-3]}")
+            if isdir("tags_collection"):
+                API_URL = getenv("API_URL") == None
+                API_KEY = getenv("API_KEY") == None
+                if API_URL or API_KEY:
+                    log.warn(f"{'API_URL' if API_URL else ''}{'、' if API_URL and API_KEY else ''}{'API_KEY' if API_KEY else ''}が.env(環境変数)に指定されていません。\nこの機能を使用するには指定してください。")
+                log.info("Tags Collection Cog読み込み")
+                for cog in listdir("tags_collection"):
+                    if cog.endswith(".py"):
+                        await bot.load_extension(f"tags_collection.{cog[:-3]}")
             synced = await bot.tree.sync()
             log.info(f"{len(synced)}個のコマンドを同期しました。")
+            if isdir("tags_collection"):
+                tc_synced = await bot.tree.sync(guild=tc_ob)
+                log.info(f"Tags Collectionサーバーに{len(tc_synced)}個のコマンドを同期しました。")
         except Exception as e:
             log.error(f"コマンドの同期中にエラーが発生しました。")
     
@@ -71,6 +86,24 @@ async def main(bot: Bot):
             a = a + i.description
         await message.channel.send(content=a)
         await interaction.response.send_message("sended.", ephemeral=True)
+    
+    @bot.event
+    async def on_message(message:discord.Message):
+        if message.guild:
+            if message.guild.id == 1484823783817613352:
+                #print(message.content)
+                if "@everyone" in message.content:
+                    with open(join(dirname(__file__), "emoji/noeveryone.png"), "rb") as f:
+                        bt = f.read()
+                    webhook = await message.channel.create_webhook(
+                        name="everyoneすんな",
+                        avatar=bt
+                    )
+                    await webhook.send(
+                        content="https://cdn.discordapp.com/emojis/1485589494127398985.webp?size=240"
+                    )
+                    await webhook.delete()
+            await bot.process_commands(message)
     
     await bot.start(getenv("TOKEN"))
 

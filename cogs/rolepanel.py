@@ -1,6 +1,6 @@
 import discord
 from discord.ext import commands
-from discord import app_commands
+from discord import app_commands, ButtonStyle
 from func.dc import Bot
 from func.log import get_log
 import json
@@ -8,6 +8,26 @@ from func.file import File
 from func.tools import list_all, Mention_False
 import asyncio
 from func.dc import Bot
+
+class RoleButton(discord.ui.Button):
+    def __init__(self, *, role:discord.Role, style: discord.ButtonStyle = ButtonStyle.secondary, label: str | None = None, disabled: bool = False, custom_id: str | None = None, url: str | None = None, emoji: str | discord.Emoji | discord.PartialEmoji | None = None, row: int | None = None, sku_id: int | None = None, id: int | None = None):
+        super().__init__(style=style, label=label, disabled=disabled, custom_id=custom_id, url=url, emoji=emoji, row=row, sku_id=sku_id, id=id)
+        self.role = role
+    async def callback(self, interaction: discord.Interaction):
+        if self.role in interaction.user.roles:
+            await interaction.user.remove_roles(self.role)
+            await interaction.response.send_message(
+                f"<@&{self.role.id}>を削除しました。",
+                ephemeral=True,
+                allowed_mentions=Mention_False
+            )
+        else:
+            await interaction.user.add_roles(self.role)
+            await interaction.response.send_message(
+                f"<@&{self.role.id}>を付与しました。",
+                ephemeral=True,
+                allowed_mentions=Mention_False
+            )
 
 class MultiRolePanelView(discord.ui.LayoutView):
     def __init__(self, roles: list[discord.Role], message:int, description:dict[int, str], title:str):
@@ -20,29 +40,13 @@ class MultiRolePanelView(discord.ui.LayoutView):
         titleText = discord.ui.TextDisplay(f"## {title}")
         self.container.add_item(titleText)
 
-        async def role_button(interaction: discord.Interaction):
-            if role in interaction.user.roles:
-                await interaction.user.remove_roles(role)
-                await interaction.response.send_message(
-                    f"<@&{role.id}>を削除しました。",
-                    ephemeral=True,
-                    allowed_mentions=Mention_False
-                )
-            else:
-                await interaction.user.add_roles(role)
-                await interaction.response.send_message(
-                    f"<@&{role.id}>を付与しました。",
-                    ephemeral=True,
-                    allowed_mentions=Mention_False
-                )
-
         for role in roles:
-            button = discord.ui.Button(
+            button = RoleButton(
+                role=role,
                 style=discord.ButtonStyle.secondary,
                 label="取得",
                 custom_id=f"{role.guild.id}_{message}_{role.id}"
             )
-            button.callback = role_button
             section = discord.ui.Section(
                 discord.ui.TextDisplay(
                     f'<@&{role.id}>\n{"\n".join([f"-# {i}" for i in (self.des[role.id] if role.id in self.des else "").splitlines()])}'
@@ -147,6 +151,7 @@ class RoleCog(commands.Cog):
             await asyncio.gather(*tasks)
     
     @app_commands.command(name="rolepanel")
+    @app_commands.default_permissions(manage_roles=True, manage_guild=True)
     async def rolepanel(
         self,
         interaction:discord.Interaction,
