@@ -22,20 +22,6 @@ jobs:
         run: |
           zip -r sob.zip . -x "*.git*" -x ".github/*"
 
-      - name: Generate start.sh
-        run: |
-          cat << 'EOF' > start.sh
-          #!/bin/bash
-          echo "Downloading latest SOB..."
-          curl -L -o sob.zip https://github.com/${{ github.repository }}/releases/latest/download/sob.zip
-
-          echo "Extracting..."
-          unzip -o sob.zip
-
-          echo "Starting bot..."
-          python3 main.py
-          EOF
-
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
@@ -43,7 +29,6 @@ jobs:
           name: Latest Auto Release
           files: |
             sob.zip
-            start.sh
             notupdate.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
