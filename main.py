@@ -32,6 +32,11 @@ async def main(bot: Bot):
                 for cog in listdir("tags_collection"):
                     if cog.endswith(".py"):
                         await bot.load_extension(f"tags_collection.{cog[:-3]}")
+            if isdir("dango-yokobjudgeman"):
+                log.info("横Bジャッジマン読み込み(団子鯖)")
+                for cog in listdir("dango-yokobjudgeman"):
+                    if cog.endswith(".py"):
+                        await bot.load_extension(f"dango-yokobjudgeman.{cog[:-3]}")
             synced = await bot.tree.sync()
             log.info(f"{len(synced)}個のコマンドを同期しました。")
             if isdir("tags_collection"):

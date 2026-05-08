@@ -1,3 +1,7 @@
 [submodule "tags_collection"]
 	path = tags_collection
 	url = https://github.com/TAMAGO55123/Tags-Collection-Official-BOT-Code.git
+
+[submodule "dango-yokobjudgeman"]
+	path = dango-yokobjudgeman
+	url = https://github.com/TAMAGO55123/yokobjudgeman.git
