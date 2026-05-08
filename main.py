@@ -7,8 +7,10 @@ from discord.app_commands import default_permissions
 from func.dc import Bot
 from func.log import get_log, stream_handler
 from asyncio import create_task, run
-from tags_collection.func.tools import tc_ob
 load_dotenv()
+
+tc_ob = discord.Object(1408781348134719588)
+yb_ob = discord.Object(1495246930249519295)
 
 async def main(bot: Bot):
     log = get_log("Main")
@@ -42,6 +44,9 @@ async def main(bot: Bot):
             if isdir("tags_collection"):
                 tc_synced = await bot.tree.sync(guild=tc_ob)
                 log.info(f"Tags Collectionサーバーに{len(tc_synced)}個のコマンドを同期しました。")
+            if isdir("dango-yokobjudgeman"):
+                yb_synced = await bot.tree.sync(guild=yb_ob)
+                log.info(f"団子の雑談・交流さばーに{len(yb_synced)}個のコマンドを同期しました。")
         except Exception as e:
             log.error(f"コマンドの同期中にエラーが発生しました。")
     
