@@ -1,5 +1,3 @@
-from ast import Bytes
-from curses import noecho
 import discord
 from discord.ext import commands
 from discord import app_commands
