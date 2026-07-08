@@ -161,6 +161,7 @@ async def main(bot: Bot):
     async def edit_message(interaction:discord.Interaction, message:discord.Message):
         if message.author.id != bot.user.id:
             await interaction.response.send_message("このBotで送信されたメッセージではありません。", ephemeral=True)
+            return
         await interaction.response.send_modal(SendEditModal(message))
     
     await bot.start(getenv("TOKEN"))
