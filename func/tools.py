@@ -1,6 +1,9 @@
 from typing import TypeVar, Tuple
 import copy
 import discord
+from os import getenv
+from dotenv import load_dotenv
+load_dotenv()
 
 T = TypeVar("T")
 
@@ -17,3 +20,7 @@ Mention_False:discord.AllowedMentions = discord.AllowedMentions(
     replied_user=False,
     everyone=False
 )
+
+def is_bot_admin(id:int):
+    bot_admins = [int(i) for i in getenv("ADMINID").split(",")]
+    return id in bot_admins
