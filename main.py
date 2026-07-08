@@ -114,6 +114,54 @@ async def main(bot: Bot):
                     )
                     await webhook.delete()
             await bot.process_commands(message)
+    class SendEditModal(discord.ui.Modal):
+        def __init__(self, message:discord.Message):
+            super().__init__(
+                title="編集するメッセージを入力",
+                timeout=None
+            )
+            if len(message.embeds) == 0:
+                embed = False
+            else:
+                embed = True
+            self.message = discord.ui.Label(
+                text="メッセージ",
+                component=discord.ui.TextInput(
+                    style=discord.TextStyle.paragraph,
+                    required=True,
+                    max_length=4000 if embed else 2000,
+                    default=message.embeds[0].description if embed else message.content
+                )
+            )
+            self.add_item(self.message)
+            self.embed = embed
+            self.smessage = message
+        
+        async def on_submit(self, interaction:discord.Interaction):
+            mes:discord.Message = None
+            if self.embed:
+                mes = await self.smessage.edit(
+                    embed=discord.Embed(
+                        description=self.message.component.value
+                    )
+                )
+            else:
+                mes = await self.smessage.edit(
+                    content=self.message.component.value
+                )
+            await interaction.response.send_message(
+                embed=discord.Embed(
+                    title="編集しました。",
+                    description=f"メッセージ : https://discord.com/channels/{mes.guild.id}/{mes.channel.id}/{mes.id}"
+                ),
+                ephemeral=True
+            )
+    @bot.tree.context_menu(name="メッセージを編集")
+    @default_permissions(administrator=True)
+    async def edit_message(interaction:discord.Interaction, message:discord.Message):
+        if message.author.id != bot.user.id:
+            await interaction.response.send_message("このBotで送信されたメッセージではありません。", ephemeral=True)
+        await interaction.response.send_modal(SendEditModal(message))
     
     await bot.start(getenv("TOKEN"))
 
