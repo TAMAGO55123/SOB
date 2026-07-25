@@ -36,6 +36,9 @@ class AdminCog(commands.Cog):
 
     @admin.command(name="serverlist", description="サーバーリスト")
     async def serverlist(self, interaction:discord.Interaction):
+        if not is_bot_admin(interaction.user.id):
+            await interaction.response.send_message("このコマンドはこのBOTの管理者のみが使用できます。", ephemeral=True)
+            return
         await interaction.response.send_message(
             embed=discord.Embed(
                 title="サーバーリスト",
