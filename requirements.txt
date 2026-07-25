@@ -7,6 +7,7 @@ audioop-lts==0.2.2
 discord.py==2.7.1
 frozenlist==1.8.0
 idna==3.18
+jpholiday==1.0.3
 multidict==6.7.1
 packaging==26.2
 pip-review==1.3.0
