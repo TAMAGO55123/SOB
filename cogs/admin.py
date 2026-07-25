@@ -17,7 +17,7 @@ class AdminCog(commands.Cog):
     
     class Admin(app_commands.Group):
         pass
-    admin = Admin(name="admin", description="Bot管理者用コマンド", default_permissions=discord.Permissions(administrator=True))
+    admin = Admin(name="admin", description="Bot管理者用コマンド")
     
     @admin.command(name="reload", description="再起動")
     async def reload2(self, interaction: discord.Interaction):
@@ -33,6 +33,17 @@ class AdminCog(commands.Cog):
 
         except Exception as e:
             await interaction.response.send_message(f"リロードに失敗しました: {e}")
+
+    @admin.command(name="serverlist", description="サーバーリスト")
+    async def serverlist(self, interaction:discord.Interaction):
+        await interaction.response.send_message(
+            embed=discord.Embed(
+                title="サーバーリスト",
+                description=f"- {"\n- ".join(list(map(lambda i: f"{i.name}({i.id})", self.bot.guilds)))}",
+                colour=discord.Colour.blue()
+            ),
+            ephemeral=True
+        )
 
 async def setup(bot):
     await bot.add_cog(AdminCog(bot))
