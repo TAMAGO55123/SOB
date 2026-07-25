@@ -3,6 +3,7 @@ import copy
 import discord
 from os import getenv
 from dotenv import load_dotenv
+import math
 load_dotenv()
 
 T = TypeVar("T")
@@ -21,6 +22,13 @@ Mention_False:discord.AllowedMentions = discord.AllowedMentions(
     everyone=False
 )
 
-def is_bot_admin(id:int):
+def is_bot_admin(id:int) -> bool:
     bot_admins = [int(i) for i in getenv("ADMINID").split(",")]
     return id in bot_admins
+
+def convert_size(size:int) -> str:
+    units = ("B", "KB", "MB", "GB", "TB", "PB", "EB", "ZB")
+    i = math.floor(math.log(size, 1024)) if size > 0 else 0
+    size = round(size / 1024 ** i, 2)
+
+    return f"{size} {units[i]}"
