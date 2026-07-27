@@ -1,6 +1,7 @@
 import os
 from typing import Any
 import json
+from func.log import get_log
 
 class File:
     def __init__(self, path:str) -> None:
@@ -8,8 +9,13 @@ class File:
         設定ファイル管理用クラス
         JSONであること。
         """
-        if not os.path.isfile(path):
-            raise FileNotFoundError("ファイルが存在しません")
+        self.log = get_log(f"File.py")
+        try:
+            with open(path, mode="x") as f:
+                json.dump({}, f)
+            self.log.info(f"{path}が存在しないため、ファイルを作成しました。")
+        except FileExistsError:
+            pass
         if not path.endswith(".json"):
             raise ValueError("JSONファイルのパスを指定してください")
         self.file_path:str = path

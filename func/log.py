@@ -14,4 +14,3 @@ class ExceptionLoggerAdapter(logging.LoggerAdapter):
         super().error(msg, *args, **kwargs)
 
 stream_handler = logging.StreamHandler()
-# logging.getLogger("httpx").setLevel(logging.WARNING)
