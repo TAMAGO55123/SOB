@@ -26,9 +26,9 @@ class AdminCog(commands.Cog):
             return
         
         try:
-            await interaction.response.send_message("Botを再起動します...")
+            reload_mes = await interaction.response.send_message("Botを再起動します...")
             os.execv(sys.executable, ['python'] + sys.argv)
-            await interaction.response.edit_message("再起動しました。")
+            await reload_mes.edit("再起動しました。")
             await self.bot.close()
 
         except Exception as e:
