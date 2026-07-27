@@ -10,6 +10,9 @@ import jpholiday
 from random import randint
 import io
 import re
+import psutil
+import os
+import asyncio
 
 class FunCog(commands.Cog):
     def __init__(self, bot:Bot):
@@ -59,53 +62,27 @@ class FunCog(commands.Cog):
             .set_footer(text="powered by whatistodayAPI")
         )
 
-    @fun.command(name="dice", description="ダイスを振ります。")
-    @app_commands.describe(
-        dice="〇d〇の形式で指定してください(例:1d100)"
-    )
-    async def manydice(self, interaction: discord.Interaction, dice: str):
-        try:
-            m = re.search(r"(\d+)d(\d+)", dice)
-            a = m.group(1)
-            b = m.group(2)
-    
-            await interaction.response.defer()
-            res = [randint(1, int(b)) for i in range(int(a))]
-    
-            MAX_BYTES = 5 * 1024 * 1024  # 5MB
-    
-            sres = ",\n".join(map(str, res))
-            all = sum(res)
-            encoded = sres.encode("utf-8")
-    
-            is_compressed = False
-            byte = len(encoded)
-            # 5MBを超える場合は切り詰める
-            if len(encoded) > MAX_BYTES:
-                is_compressed = True
-                encoded = encoded[:MAX_BYTES]
-                sres = encoded.decode("utf-8", errors="ignore")
-            print(all)
-    
-            em_output = f"{dice}\n-> (計算結果はファイル){f"(結果が大きいため、一部切り捨てられました。元:{convert_size(byte)})" if is_compressed else ""}\n-> {all}"
-            fileio = io.StringIO()
-            fileio.write(sres)
-            fileio.seek(0)
-            file = discord.File(fileio, filename="result.txt")
-    
-            embed = discord.Embed(
-                title="結果",
-                description=em_output[:4000],
-                colour=discord.Colour.green()
-            )
-    
-            await interaction.followup.send(
-                embed=embed,
-                file=file
-            )
-        except Exception as e:
-            await interaction.followup.send("計算に失敗しました", embed=discord.Embed(description=f"```{e}```"))
-            self.log.error(e)
+    @fun.command(name="role_count", description="ロールの数を数えます")
+    async def role_count(self, interaction:discord.Interaction, member:discord.Member = None):
+        user = member if member else interaction.user
+        color = discord.Colour.random()
+        roles = user.roles[1:]
+        roles.reverse()
+
+        await interaction.response.send_message(
+            embeds=[
+                discord.Embed(
+                    title=f"{user.display_name}のロール数",
+                    description=f"{len(roles)}個",
+                    colour=color
+                ),
+                discord.Embed(
+                    title="ロール一覧",
+                    description=f"- {"\n- ".join([i.name for i in roles])}",
+                    colour=color
+                )
+            ]
+        )
 
 async def setup(bot):
     await bot.add_cog(FunCog(bot))
