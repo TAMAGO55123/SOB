@@ -28,3 +28,9 @@
     ```
 
     role.jsonが生成されます。
+
+## ライセンス
+### Font
+M PLUS Rounded 1cはOFLLICENSEです。
+
+https://fonts.google.com/specimen/M+PLUS+Rounded+1c
