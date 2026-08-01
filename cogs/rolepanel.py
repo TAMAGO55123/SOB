@@ -119,12 +119,6 @@ class RoleCog(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         self.log.info(f"{self.__class__.__name__}が読み込まれました！")
-        try:
-            with open("role.json", mode="x") as f:
-                f.write("{}")
-            self.log.info(f"設定ファイルが生成されていなかったため、ファイルを作成しました。'role.json'")
-        except FileExistsError:
-            pass
         self.file = File("role.json")
         tasks = []
         f_d = self.file.get_all()
