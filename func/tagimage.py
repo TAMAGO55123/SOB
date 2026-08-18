@@ -31,7 +31,7 @@ def find_best_font_size(text, font_path="NotoSansJP-Regular.otf", target_height=
 async def create_tag_image(icon: BytesIO, tag_name: str) -> BytesIO:
     module_path = Path(__file__)
     font_file = module_path.parent.parent / "font" / "M_PLUS_Rounded_1c" / "MPLUSRounded1c-Medium.ttf"
-    print(font_file)
+    # print(font_file)
     text_size = find_best_font_size(text=tag_name, font_path=str(font_file), target_height=64)
     
     font = ImageFont.truetype(
