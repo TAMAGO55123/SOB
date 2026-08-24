@@ -189,7 +189,7 @@ async def main(bot: Bot):
                 await interaction.response.send_message(content="ﾁｮﾜﾖ!", ephemeral=True)
             else:
                 await interaction.response.send_message(content="スレ主または権限が無いので使用できません。", ephemeral=True)
-        except discord.errors.Forbidden:
+        except (discord.errors.NotFound):
             await interaction.response.send_message(content="ここはスレじゃないです。", ephemeral=True)
 
     
