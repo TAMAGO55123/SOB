@@ -29,7 +29,7 @@ async def main(bot: Bot):
                 API_URL = getenv("API_URL") == None
                 API_KEY = getenv("API_KEY") == None
                 if API_URL or API_KEY:
-                    log.warn(f"{'API_URL' if API_URL else ''}{'、' if API_URL and API_KEY else ''}{'API_KEY' if API_KEY else ''}が.env(環境変数)に指定されていません。\nこの機能を使用するには指定してください。")
+                    log.warning(f"{'API_URL' if API_URL else ''}{'、' if API_URL and API_KEY else ''}{'API_KEY' if API_KEY else ''}が.env(環境変数)に指定されていません。\nこの機能を使用するには指定してください。")
                 log.info("Tags Collection Cog読み込み")
                 for cog in listdir("tags_collection"):
                     if cog.endswith(".py"):
@@ -39,6 +39,11 @@ async def main(bot: Bot):
                 for cog in listdir("dango-yokobjudgeman"):
                     if cog.endswith(".py"):
                         await bot.load_extension(f"dango-yokobjudgeman.{cog[:-3]}")
+            if isdir("supiki"):
+                log.info("ｽﾋﾟｷ読み込み")
+                for cog in listdir("supiki"):
+                    if cog.endswith(".py"):
+                        await bot.load_extension(f"supiki.{cog[:-3]}")
             synced = await bot.tree.sync()
             log.info(f"{len(synced)}個のコマンドを同期しました。")
             if isdir("tags_collection"):
