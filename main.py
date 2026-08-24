@@ -179,9 +179,8 @@ async def main(bot: Bot):
     @app_commands.guilds(1541248982712328287)
     @app_commands.guild_only()
     async def supiki_pin(interaction: discord.Interaction, message: discord.Message):
-        try:
-            th = await message.fetch_thread()
-            if th.owner.id == interaction.user.id:
+        if isinstance(message.channel, discord.Thread):
+            if message.channel.owner.id == interaction.user.id:
                 await message.pin(reason="スレ主ピン")
                 await interaction.response.send_message(content="ﾁｮﾜﾖ!", ephemeral=True)
             elif interaction.user.guild_permissions.pin_messages:
@@ -189,7 +188,7 @@ async def main(bot: Bot):
                 await interaction.response.send_message(content="ﾁｮﾜﾖ!", ephemeral=True)
             else:
                 await interaction.response.send_message(content="スレ主または権限が無いので使用できません。", ephemeral=True)
-        except (discord.errors.NotFound):
+        else:
             await interaction.response.send_message(content="ここはスレじゃないです。", ephemeral=True)
 
     
