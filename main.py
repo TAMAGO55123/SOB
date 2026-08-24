@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 from discord.app_commands import default_permissions
+from discord import app_commands
 from func.dc import Bot
 from func.log import get_log, stream_handler
 from asyncio import create_task, run
@@ -168,6 +169,24 @@ async def main(bot: Bot):
             await interaction.response.send_message("このBotで送信されたメッセージではありません。", ephemeral=True)
             return
         await interaction.response.send_modal(SendEditModal(message))
+
+    # ｽﾋﾟｷ
+    @bot.tree.context_menu(name="ピン止め")
+    @app_commands.guilds(1541248982712328287)
+    @app_commands.guild_only()
+    async def supiki_pin(interaction: discord.Interaction, message: discord.Message):
+        if message.thread:
+            if message.thread.owner.id == interaction.user.id:
+                await message.pin(reason="スレ主ピン")
+                await interaction.response.send_message(content="ﾁｮﾜﾖ!", ephemeral=True)
+            elif interaction.user.guild_permissions.pin_messages:
+                await message.pin(reason="権限持ちピン")
+                await interaction.response.send_message(content="ﾁｮﾜﾖ!", ephemeral=True)
+            else:
+                await interaction.response.send_message(content="スレ主または権限が無いので使用できません。", ephemeral=True)
+        else:
+            await interaction.response.send_message(content="ここはスレじゃないです。", ephemeral=True)
+
     
     await bot.start(getenv("TOKEN"))
 
