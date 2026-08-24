@@ -180,7 +180,8 @@ async def main(bot: Bot):
     @app_commands.guild_only()
     async def supiki_pin(interaction: discord.Interaction, message: discord.Message):
         try:
-            if message.thread.owner.id == interaction.user.id:
+            th = await message.fetch_thread()
+            if th.owner.id == interaction.user.id:
                 await message.pin(reason="スレ主ピン")
                 await interaction.response.send_message(content="ﾁｮﾜﾖ!", ephemeral=True)
             elif interaction.user.guild_permissions.pin_messages:
