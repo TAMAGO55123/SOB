@@ -12,6 +12,7 @@ load_dotenv()
 
 tc_ob = discord.Object(1408781348134719588)
 yb_ob = discord.Object(1495246930249519295)
+sp_ob = discord.Object(1541248982712328287)
 
 async def main(bot: Bot):
     log = get_log("Main")
@@ -53,6 +54,9 @@ async def main(bot: Bot):
             if isdir("dango-yokobjudgeman"):
                 yb_synced = await bot.tree.sync(guild=yb_ob)
                 log.info(f"団子の雑談・交流さばーに{len(yb_synced)}個のコマンドを同期しました。")
+            if isdir("supiki"):
+                sp_synced = await bot.tree.sync(guild=sp_ob)
+                log.info(f"ｽﾋﾟｷに{len(sp_synced)}個ﾎﾊﾞｷﾞ(コマンド)を食わせました")
         except Exception as e:
             log.error(f"コマンドの同期中にエラーが発生しました。")
     
